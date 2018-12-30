@@ -7,9 +7,11 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -27,8 +29,17 @@ import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.Toast;
 
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.DexterError;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.PermissionRequestErrorListener;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import crud.AddBook;
 import crud.DetailAlarm;
@@ -53,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     //
     private DatabaseHelper mDatabaseHelper;
     private ConvertString mConvertString = new ConvertString();
+    public boolean result = false;
 
     TabHost tab = null;
     public static int flag_alarm = 0;
@@ -107,8 +119,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void tab1() {
         //dataBook();
-        boolean result = AddBook.UtilityPermission.checkPermission(MainActivity.this);
-
+        result = UtilityPermission.checkPermission(MainActivity.this);
+        Log.d("abc","Click tab1 = " + result);
         if (result) {
             mArrayList_Book = mDatabaseHelper.getAllBooks(pref.getString("sort_books", "Title"));
             Collections.sort(mArrayList_Book, new BookComperatorTitle());
@@ -121,27 +133,34 @@ public class MainActivity extends AppCompatActivity {
             SearchViewBook();
             ViewDetailsBook();
         }
+
+        //add permission using lib - Only call funtion
+        //requestStoragePermission();
     }
 
     private void ViewDetailsBook() {
         mListView_Book.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
-                Book book = (Book) parent.getAdapter()
-                        .getItem(pos);
-                Intent intent = new Intent(MainActivity.this,
-                        DetailBook.class);
+                    Log.d("abc","Uncall it itemClick= " + result);
+                    Log.d("abc","call it itemClick= ");
 
-                intent.putExtra("Title", book.getmTitle());
-                intent.putExtra("Author", book.getmAuthor());
-                intent.putExtra("Publisher", book.getmPublisher());
-                intent.putExtra("Category", book.getmCategory());
-                intent.putExtra("Price", book.getmPrice());
-                intent.putExtra("Describe", book.getmDescribe());
-                intent.putExtra("Image", book.getmImage());
-                intent.putExtra("Id", book.getmIdBook());
+                    Book book = (Book) parent.getAdapter()
+                            .getItem(pos);
+                    Intent intent = new Intent(MainActivity.this,
+                            DetailBook.class);
 
-                startActivity(intent);
+                    intent.putExtra("Title", book.getmTitle());
+                    intent.putExtra("Author", book.getmAuthor());
+                    intent.putExtra("Publisher", book.getmPublisher());
+                    intent.putExtra("Category", book.getmCategory());
+                    intent.putExtra("Price", book.getmPrice());
+                    intent.putExtra("Describe", book.getmDescribe());
+                    intent.putExtra("Image", book.getmImage());
+                    intent.putExtra("Id", book.getmIdBook());
+
+                    startActivity(intent);
+
             }
         });
 
@@ -339,7 +358,7 @@ public class MainActivity extends AppCompatActivity {
                         Bundle bundle = new Bundle();
                         bundle.putInt("id_alarm", mAlarm.getmIdAlarm());
                         Log.d("Swipe right", mAlarm.getmIdAlarm()
-                                + " thangggggggg");
+                                + " thuc");
                         intent.putExtra("packet", bundle);
                         startActivity(intent);
 
@@ -466,8 +485,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //boolean result = AddBook.UtilityPermission.checkPermission(MainActivity.this);
-        //if (result) {
+        //boolean result = UtilityPermission.checkPermission(MainActivity.this);
         flag_alarm = 0;
         mArrayList_Alarm = mDatabaseHelper.getAllAlarms();
         Collections.sort(mArrayList_Alarm, new AlarmComparatorTime());
@@ -494,33 +512,176 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        switch (requestCode) {
-            case UtilityPermission.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    mArrayList_Book = mDatabaseHelper.getAllBooks(pref.getString("sort_books", "Title"));
-                    Collections.sort(mArrayList_Book, new BookComperatorTitle());
-
-                    mBookAdapter = new BookAdapter(MainActivity.this, R.layout.book_layout, mArrayList_Book);
-                    mBookAdapter.notifyDataSetChanged();
-                    mListView_Book.setAdapter(mBookAdapter);
-
-                    // add su kien searchView;
-                    SearchViewBook();
-                    ViewDetailsBook();
+        if(permissions.length == 0){
+            return;
+        }
+        boolean allPermissionsGranted = true;
+        if(grantResults.length>0){
+            for(int grantResult: grantResults){
+                if(grantResult != PackageManager.PERMISSION_GRANTED){
+                    allPermissionsGranted = false;
+                    break;
                 }
+            }
+        }
+
+        if(!allPermissionsGranted){
+            boolean somePermissionsForeverDenied = false;
+            for(String permission: permissions){
+                if(ActivityCompat.shouldShowRequestPermissionRationale(this, permission)){
+                    //denied
+                    Log.d("abc", "denied");
+                }else{
+                    if(ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED){
+                        //allowed
+                        Log.d("abc", "allow");
+                    } else{
+                        //set to never ask again
+                        Log.d("abc", "never check");
+                        somePermissionsForeverDenied = true;
+                    }
+                }
+            }
+            if (somePermissionsForeverDenied) {
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+                alertDialogBuilder.setTitle("Permissions Required")
+                        .setMessage("You have forcefully denied some of the required permissions " +
+                                "for this action. Please open settings, go to permissions and allow them.")
+                        .setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                                        Uri.fromParts("package", getPackageName(), null));
+                                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                startActivityForResult(intent, 100);
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                            }
+                        })
+                        .setCancelable(false)
+                        .create()
+                        .show();
+            }
+        } else {
+            switch (requestCode) {
+                case UtilityPermission.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+                    if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                            && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                        mArrayList_Book = mDatabaseHelper.getAllBooks(pref.getString("sort_books", "Title"));
+                        Collections.sort(mArrayList_Book, new BookComperatorTitle());
+
+                        mBookAdapter = new BookAdapter(MainActivity.this, R.layout.book_layout, mArrayList_Book);
+                        mBookAdapter.notifyDataSetChanged();
+                        mListView_Book.setAdapter(mBookAdapter);
+                        SearchViewBook();
+                        ViewDetailsBook();
+                    } else {
+                        ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.SEND_SMS}, UtilityPermission.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                    }
+            }
         }
     }
 
-    public static class UtilityPermission {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 100) {
+            Log.d("Abc","test");
+            mArrayList_Book = mDatabaseHelper.getAllBooks(pref.getString("sort_books", "Title"));
+            Collections.sort(mArrayList_Book, new BookComperatorTitle());
+
+            mBookAdapter = new BookAdapter(MainActivity.this, R.layout.book_layout, mArrayList_Book);
+            mBookAdapter.notifyDataSetChanged();
+            mListView_Book.setAdapter(mBookAdapter);
+            SearchViewBook();
+            ViewDetailsBook();
+        }
+    }
+
+    private void requestStoragePermission() {
+        Dexter.withActivity(this)
+                .withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.SEND_SMS)
+                .withListener(new MultiplePermissionsListener() {
+                    @Override
+                    public void onPermissionsChecked(MultiplePermissionsReport report) {
+                        if (report.areAllPermissionsGranted()) {
+                            mArrayList_Book = mDatabaseHelper.getAllBooks(pref.getString("sort_books", "Title"));
+                            Collections.sort(mArrayList_Book, new BookComperatorTitle());
+
+                            mBookAdapter = new BookAdapter(MainActivity.this, R.layout.book_layout, mArrayList_Book);
+                            mBookAdapter.notifyDataSetChanged();
+                            mListView_Book.setAdapter(mBookAdapter);
+
+                            // add su kien searchView;
+                            SearchViewBook();
+                            ViewDetailsBook();
+                        }
+
+                        // check for permanent denial of any permission
+                        if (report.isAnyPermissionPermanentlyDenied()) {
+                            // show alert dialog navigating to Settings
+                            showSettingsDialog();
+                        }
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> permissions, PermissionToken token) {
+                        token.continuePermissionRequest();
+                    }
+                }).
+                withErrorListener(new PermissionRequestErrorListener() {
+                    @Override
+                    public void onError(DexterError error) {
+                        Toast.makeText(getApplicationContext(), "Error occurred! " + error.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .onSameThread()
+                .check();
+    }
+
+    private void showSettingsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("Need Permissions");
+        builder.setMessage("This app needs permission to use this feature. You can grant them in app settings.");
+        builder.setPositiveButton("GOTO SETTINGS", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                openSettings();
+            }
+        });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+            }
+        });
+        builder.show();
+    }
+
+    private void openSettings() {
+        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+        Uri uri = Uri.fromParts("package", getPackageName(), null);
+        intent.setData(uri);
+        startActivityForResult(intent, 101);
+    }
+
+    static class UtilityPermission {
         public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
 
         public static boolean checkPermission(final Context context) {
             int currentAPIVersion = Build.VERSION.SDK_INT;
 
             if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
-                if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-                    if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) context, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                    || ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) context, Manifest.permission.READ_EXTERNAL_STORAGE)
+                        || ActivityCompat.shouldShowRequestPermissionRationale((Activity) context, Manifest.permission.SEND_SMS)) {
+                        Log.d("abc","never checked");
                         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
                         alertBuilder.setCancelable(true)
                                 .setTitle("Permission necessary")
@@ -528,13 +689,14 @@ public class MainActivity extends AppCompatActivity {
                                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                                        ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.SEND_SMS}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
                                     }
                                 });
                         AlertDialog alert = alertBuilder.create();
                         alert.show();
                     } else {
-                        ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                        Log.d("abc","normal checked");
+                        ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.SEND_SMS}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
                     }
                     return false;
                 } else {
