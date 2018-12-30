@@ -1,9 +1,12 @@
 package crud;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,11 +19,16 @@ import android.widget.Toast;
 
 import com.example.sev_user.bookmanager.R;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
 import database.Book;
 import database.DatabaseHelper;
 import utility.Utility;
 
 public class AddBook extends Activity {
+    private static final int MAX_IMAGE_DIMENSION = 40;
     EditText edtTitle, edtAuthor, edtPublisher, edtCategory, edtPrice,
             edtDescribe;
     ImageView imgCover;
@@ -94,6 +102,66 @@ public class AddBook extends Activity {
         });
     }
 
+    public int getOrienttation(Context context, Uri photoUri) {
+        Cursor cursor = getContentResolver()
+                .query(photoUri,
+                        new String[] { android.provider.MediaStore.Images.ImageColumns.DATA },
+                        null, null, null);
+        cursor.moveToFirst();
+        return cursor.getInt(0);
+    }
+
+    public Bitmap getCorrectlyOrientedImage(Context context, Uri photoUri) throws IOException {
+        InputStream is = context.getContentResolver().openInputStream(photoUri);
+        BitmapFactory.Options dbo = new BitmapFactory.Options();
+        dbo.inJustDecodeBounds = true;
+        BitmapFactory.decodeStream(is, null, dbo);
+        is.close();
+
+        int rotatedWidth, rotatedHeight;
+        int orientation = getOrienttation(context, photoUri);
+
+        Log.d("abc","orientation = " + orientation);
+
+        if (orientation == 90 || orientation == 270) {
+            rotatedWidth = dbo.outHeight;
+            rotatedHeight = dbo.outWidth;
+        } else {
+            rotatedWidth = dbo.outWidth;
+            rotatedHeight = dbo.outHeight;
+        }
+
+        Bitmap srcBitmap;
+        is = context.getContentResolver().openInputStream(photoUri);
+        if (rotatedWidth > MAX_IMAGE_DIMENSION || rotatedHeight > MAX_IMAGE_DIMENSION) {
+            float widthRatio = ((float) rotatedWidth) / ((float) MAX_IMAGE_DIMENSION);
+            float heightRatio = ((float) rotatedHeight) / ((float) MAX_IMAGE_DIMENSION);
+            float maxRatio = Math.max(widthRatio, heightRatio);
+
+            // Create the bitmap from file
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = (int) maxRatio;
+            srcBitmap = BitmapFactory.decodeStream(is, null, options);
+        } else {
+            srcBitmap = BitmapFactory.decodeStream(is);
+        }
+        is.close();
+
+        /*
+         * if the orientation is not 0 (or -1, which means we don't know), we
+         * have to do a rotation.
+         */
+        if (orientation > 0) {
+            Matrix matrix = new Matrix();
+            matrix.postRotate(orientation);
+
+            srcBitmap = Bitmap.createBitmap(srcBitmap, 0, 0, srcBitmap.getWidth(),
+                    srcBitmap.getHeight(), matrix, true);
+        }
+
+        return srcBitmap;
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -112,11 +180,14 @@ public class AddBook extends Activity {
 
                     // Link to the image
                     imgPath = cursor.getString(0);
-                    Log.d("abc", "Pickture path = " + imgPath);
-
                     Bitmap bitmap = Utility.converBitmap(imgPath);
-                    // edtTitle.setText(imgPath);
                     imgCover.setImageBitmap(bitmap);
+                    // edtTitle.setText(imgPath);
+                   /* try {
+                        imgCover.setImageBitmap(getCorrectlyOrientedImage(getApplicationContext(), data.getData()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }*/
                     cursor.close();
                 }
                 return;
