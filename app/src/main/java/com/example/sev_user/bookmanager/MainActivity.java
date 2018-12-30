@@ -1,10 +1,18 @@
 package com.example.sev_user.bookmanager;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -99,16 +107,20 @@ public class MainActivity extends AppCompatActivity {
 
     public void tab1() {
         //dataBook();
-        mArrayList_Book = mDatabaseHelper.getAllBooks(pref.getString("sort_books", "Title"));
-        Collections.sort(mArrayList_Book, new BookComperatorTitle());
+        boolean result = AddBook.UtilityPermission.checkPermission(MainActivity.this);
 
-        mBookAdapter = new BookAdapter(MainActivity.this, R.layout.book_layout, mArrayList_Book);
-        mBookAdapter.notifyDataSetChanged();
-        mListView_Book.setAdapter(mBookAdapter);
+        if (result) {
+            mArrayList_Book = mDatabaseHelper.getAllBooks(pref.getString("sort_books", "Title"));
+            Collections.sort(mArrayList_Book, new BookComperatorTitle());
 
-        // add su kien searchView;
-        SearchViewBook();
-        ViewDetailsBook();
+            mBookAdapter = new BookAdapter(MainActivity.this, R.layout.book_layout, mArrayList_Book);
+            mBookAdapter.notifyDataSetChanged();
+            mListView_Book.setAdapter(mBookAdapter);
+
+            // add su kien searchView;
+            SearchViewBook();
+            ViewDetailsBook();
+        }
     }
 
     private void ViewDetailsBook() {
@@ -454,6 +466,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        //boolean result = AddBook.UtilityPermission.checkPermission(MainActivity.this);
+        //if (result) {
         flag_alarm = 0;
         mArrayList_Alarm = mDatabaseHelper.getAllAlarms();
         Collections.sort(mArrayList_Alarm, new AlarmComparatorTime());
@@ -466,13 +480,69 @@ public class MainActivity extends AppCompatActivity {
         mBookAdapter = new BookAdapter(getApplicationContext(),
                 R.layout.book_layout, mArrayList_Book);
         mListView_Book.setAdapter(mBookAdapter);
-        // language
-        // String lang = pref.getString("language", "en");
-        // Locale locale = new Locale(lang);
-        // Locale.setDefault(locale);
-        // Configuration config = new Configuration();
-        // config.locale = locale;
-        // getBaseContext().getResources().updateConfiguration(config,
-        // getBaseContext().getResources().getDisplayMetrics());
+            // language
+            // String lang = pref.getString("language", "en");
+            // Locale locale = new Locale(lang);
+            // Locale.setDefault(locale);
+            // Configuration config = new Configuration();
+            // config.locale = locale;
+            // getBaseContext().getResources().updateConfiguration(config,
+            // getBaseContext().getResources().getDisplayMetrics());
+        //}
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode) {
+            case UtilityPermission.MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    mArrayList_Book = mDatabaseHelper.getAllBooks(pref.getString("sort_books", "Title"));
+                    Collections.sort(mArrayList_Book, new BookComperatorTitle());
+
+                    mBookAdapter = new BookAdapter(MainActivity.this, R.layout.book_layout, mArrayList_Book);
+                    mBookAdapter.notifyDataSetChanged();
+                    mListView_Book.setAdapter(mBookAdapter);
+
+                    // add su kien searchView;
+                    SearchViewBook();
+                    ViewDetailsBook();
+                }
+        }
+    }
+
+    public static class UtilityPermission {
+        public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 123;
+
+        public static boolean checkPermission(final Context context) {
+            int currentAPIVersion = Build.VERSION.SDK_INT;
+
+            if (currentAPIVersion >= android.os.Build.VERSION_CODES.M) {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                    if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) context, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                        AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+                        alertBuilder.setCancelable(true)
+                                .setTitle("Permission necessary")
+                                .setMessage("External storage permission is necessary")
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                                    }
+                                });
+                        AlertDialog alert = alertBuilder.create();
+                        alert.show();
+                    } else {
+                        ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+                    }
+                    return false;
+                } else {
+                    return true;
+                }
+            } else {
+                return true;
+            }
+        }
     }
 }
