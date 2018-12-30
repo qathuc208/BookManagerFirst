@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">BookManager</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_books_manager">Books Manager</string>
+    <string name="action_add">Add</string>
+    <string name="txtTitleLabelId">Tile: </string>
+    <string name="txtAuthorLabelId">Author: </string>
+    <string name="txtPublisherLabelId">Publisher: </string>
+    <string name="txtCategoryLabelId">Category:</string>
+    <string name="txtPriceLabelId">Price:</string>
+    <string name="btnSelectImgId">Image</string>
+    <string name="btnDoneId">Done</string>
+    <string name="btnCancelId">Cancel</string>
+    <string name="txtDescribeLabelId">Describe: </string>
+    <string name="btnEditId">Edit</string>
+    <string name="btnDeleteId">Delete</string>
+</resources>

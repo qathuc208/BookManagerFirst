@@ -1,0 +1,200 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_layout"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.sev_user.bookmanager.MainActivity" >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        <ImageView
+            android:id="@+id/image_view"
+            android:layout_width="90sp"
+            android:layout_height="100sp"
+            android:layout_alignParentLeft="true"
+            android:paddingTop="5sp"
+            android:src="@drawable/book" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="150sp"
+            android:layout_marginLeft="10sp"
+            android:layout_toRightOf="@id/image_view"
+            android:background="@drawable/background"
+            android:paddingBottom="5sp"
+            android:paddingLeft="5sp"
+            android:paddingRight="5sp"
+            android:paddingTop="5sp" >
+            <!-- ten sach -->
+            <LinearLayout
+                android:id="@+id/layout_tensach"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:orientation="horizontal" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/txtTitleLabelId"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/textview_namebook"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold" />
+            </LinearLayout>
+            <!-- the loai -->
+            <LinearLayout
+                android:id="@+id/layout_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:orientation="horizontal" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/txtCategoryLabelId"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/textview_type"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold" />
+            </LinearLayout>
+            <!-- nhaxuatban -->
+            <LinearLayout
+                android:id="@+id/layout_nxb"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/layout_type"
+                android:layout_marginBottom="10sp"
+                android:orientation="horizontal" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/txtPublisherLabelId"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/textview_publisher"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold" />
+            </LinearLayout>
+            <!-- tac gia -->
+            <LinearLayout
+                android:id="@+id/layout_tacgia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/layout_nxb"
+                android:layout_marginBottom="10sp"
+                android:orientation="horizontal" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/txtAuthorLabelId"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/textview_author"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold" />
+            </LinearLayout>
+            <!-- gia -->
+            <LinearLayout
+                android:id="@+id/layout_gia"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/layout_tacgia"
+                android:layout_below="@id/layout_tensach"
+                android:layout_marginTop="20sp"
+                android:orientation="horizontal" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/txtPriceLabelId"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/textview_price"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="#ffffff"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </RelativeLayout>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+        <LinearLayout
+            android:id="@+id/btb"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="3dp"
+            android:gravity="center_horizontal" >
+            <Button
+                android:id="@+id/edit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginRight="3dp"
+                android:layout_weight=".5"
+                android:background="@drawable/button_shape"
+                android:gravity="center"
+                android:text="@string/btnEditId"
+                android:textColor="#1D7D84" />
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight=".5"
+                android:background="@drawable/button_shape"
+                android:gravity="center"
+                android:text="@string/btnDeleteId"
+                android:textColor="#1D7D84" />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/text_mota"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/txtDescribeLabelId"
+            android:textSize="18sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/btb"
+            android:layout_below="@id/text_mota"
+            android:layout_marginBottom="15dp"
+            android:background="@drawable/inote" >
+            <TextView
+                android:id="@+id/edittext_des"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginBottom="40sp"
+                android:layout_marginLeft="15sp"
+                android:layout_marginRight="15sp"
+                android:layout_marginTop="70sp"
+                android:gravity="top|left"
+                android:inputType="textEmailAddress|textMultiLine"
+                android:lines="20"
+                android:minLines="5"
+                android:scrollHorizontally="false"
+                android:scrollbars="vertical"
+                android:singleLine="false"
+                android:text="Hai nhà vô địch World Cup và trụ cột ở CLB Bayern, Philipp Lahm và Thomas Muller lần lượt xếp ở vị trí thứ 4 và 5. Tân binh đắt giá trong mùa hè này của Real Madrid, James Rodriguez đứng thứ 6. Trong khi đó, Suarez chỉ về thứ 7. 3 vị trí còn lại trong top 10 thuộc về thủ thành Courtois (bắt cho CLB Atletico theo dạng cho mượn từ Chelsea, ĐT Bỉ)," />
+        </LinearLayout>
+    </RelativeLayout>
+</LinearLayout>

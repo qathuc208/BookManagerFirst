@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+ <CheckBoxPreference
+        android:key="alarm"
+        android:summary="Check if you want to know when it is time for lunch"
+        android:title="Sound a Lunch Alarm" />
+
+    <time.DatePickerDialogActivity
+        android:defaultValue="12:00"
+        android:dependency="alarm"
+        android:key="alarm_time"
+        android:summary="Set your desired time for the lunch alarm"
+        android:title="Lunch Alarm Time" />
+    <RingtonePreference
+        android:key="alertringtone"
+        android:ringtoneType="ringtone|notification|alarm|all"
+        android:showDefault="true"
+        android:showSilent="true"
+        android:title="Select Ringtone" >
+    </RingtonePreference>
+</PreferenceScreen>

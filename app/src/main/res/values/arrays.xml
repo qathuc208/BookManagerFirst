@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+
+    <string-array name="sort_names">
+        <item>By Title</item>
+        <item>By Author</item>
+        <item>By Category</item>
+    </string-array>
+    <string-array name="sort_clauses">
+        <item>title asc</item>
+        <item>author asc</item>
+        <item>category asc</item>
+    </string-array>
+    <string-array name="language_name">
+        <item>English</item>
+        <item>Vietnamese</item>
+    </string-array>
+    <string-array name="language_values">
+        <item>en</item>
+        <item>vn</item>
+    </string-array>
+
+</resources>
