@@ -120,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
     public void tab1() {
         //dataBook();
         result = UtilityPermission.checkPermission(MainActivity.this);
-        Log.d("abc","Click tab1 = " + result);
         if (result) {
             mArrayList_Book = mDatabaseHelper.getAllBooks(pref.getString("sort_books", "Title"));
             Collections.sort(mArrayList_Book, new BookComperatorTitle());
@@ -142,9 +141,6 @@ public class MainActivity extends AppCompatActivity {
         mListView_Book.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int pos, long id) {
-                    Log.d("abc","Uncall it itemClick= " + result);
-                    Log.d("abc","call it itemClick= ");
-
                     Book book = (Book) parent.getAdapter()
                             .getItem(pos);
                     Intent intent = new Intent(MainActivity.this,
@@ -357,8 +353,6 @@ public class MainActivity extends AppCompatActivity {
                                 DetailAlarm.class);
                         Bundle bundle = new Bundle();
                         bundle.putInt("id_alarm", mAlarm.getmIdAlarm());
-                        Log.d("Swipe right", mAlarm.getmIdAlarm()
-                                + " thuc");
                         intent.putExtra("packet", bundle);
                         startActivity(intent);
 
@@ -530,14 +524,11 @@ public class MainActivity extends AppCompatActivity {
             for(String permission: permissions){
                 if(ActivityCompat.shouldShowRequestPermissionRationale(this, permission)){
                     //denied
-                    Log.d("abc", "denied");
                 }else{
                     if(ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED){
                         //allowed
-                        Log.d("abc", "allow");
                     } else{
                         //set to never ask again
-                        Log.d("abc", "never check");
                         somePermissionsForeverDenied = true;
                     }
                 }
@@ -590,7 +581,6 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 100) {
-            Log.d("Abc","test");
             mArrayList_Book = mDatabaseHelper.getAllBooks(pref.getString("sort_books", "Title"));
             Collections.sort(mArrayList_Book, new BookComperatorTitle());
 
@@ -681,7 +671,6 @@ public class MainActivity extends AppCompatActivity {
                     || ContextCompat.checkSelfPermission(context, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
                     if (ActivityCompat.shouldShowRequestPermissionRationale((Activity) context, Manifest.permission.READ_EXTERNAL_STORAGE)
                         || ActivityCompat.shouldShowRequestPermissionRationale((Activity) context, Manifest.permission.SEND_SMS)) {
-                        Log.d("abc","never checked");
                         AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
                         alertBuilder.setCancelable(true)
                                 .setTitle("Permission necessary")
@@ -695,7 +684,6 @@ public class MainActivity extends AppCompatActivity {
                         AlertDialog alert = alertBuilder.create();
                         alert.show();
                     } else {
-                        Log.d("abc","normal checked");
                         ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.SEND_SMS}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
                     }
                     return false;

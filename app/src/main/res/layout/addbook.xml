@@ -169,7 +169,7 @@
         android:layout_alignRight="@id/edtAuthor"
         android:layout_below="@id/edtPrice"
         android:layout_marginTop="5dp"
-        android:src="@android:drawable/ic_menu_camera"
+        android:background="@drawable/camera"
         android:scaleType="fitXY" />
     <TextView
         android:id="@+id/txtDescribe"

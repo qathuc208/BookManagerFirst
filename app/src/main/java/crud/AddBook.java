@@ -145,8 +145,6 @@ public class AddBook extends Activity {
         int rotatedWidth, rotatedHeight;
         int orientation = getOrienttation(context, photoUri);
 
-        Log.d("abc","orientation = " + orientation);
-
         if (orientation == 90 || orientation == 270) {
             rotatedWidth = dbo.outHeight;
             rotatedHeight = dbo.outWidth;
@@ -193,7 +191,6 @@ public class AddBook extends Activity {
         switch (requestCode) {
             case  PICK_IMAGE:
                 if (data != null && data.getData() != null) {
-                    Log.d("abc", "Pick Image");
                     Uri _uri = data.getData();
                     // User had pick an image.
                     Cursor cursor = getContentResolver()
